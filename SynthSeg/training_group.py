@@ -23,8 +23,8 @@ License.
 import os
 import numpy as np
 import tensorflow as tf
-from keras import models
-import keras.layers as KL
+from tensorflow.keras import models
+from tensorflow.keras import layers as KL
 
 # project imports
 from SynthSeg import metrics_model as metrics
@@ -354,7 +354,7 @@ class BrainGeneratorGroup(BrainGenerator):
                                                       bias_field_std=self.bias_field_std,
                                                       bias_scale=self.bias_scale,
                                                       return_gradients=self.return_gradients)
-        out_shape = lab_to_im_model.output[0].get_shape().as_list()[1:]
+        out_shape = lab_to_im_model.output[0].shape[1:]
         return lab_to_im_model, out_shape
 
 

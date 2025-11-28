@@ -23,8 +23,8 @@ License.
 import os
 import numpy as np
 import tensorflow as tf
-from keras import models
-import keras.layers as KL
+from tensorflow.keras import models
+from tensorflow.keras import layers as KL
 import numpy.random as npr
 
 # project imports
@@ -221,7 +221,7 @@ def training(image_dir,
                                                   thickness=thickness,
                                                   bias_field_std=bias_field_std,
                                                   bias_scale=bias_scale)
-    unet_input_shape = augmentation_model.output[0].get_shape().as_list()[1:]
+    unet_input_shape = augmentation_model.output[0].shape[1:]
 
     # prepare the segmentation model
     unet_model = nrn_models.unet(input_model=augmentation_model,

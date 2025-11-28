@@ -17,10 +17,10 @@ from ext.neuron import layers
 # third party
 import numpy as np
 import tensorflow as tf
-import keras
-import keras.layers as KL
-from keras.models import Model
-import keras.backend as K
+from tensorflow import keras
+from tensorflow.keras import layers as KL
+from tensorflow.keras.models import Model
+from tensorflow.keras import backend as K
 
 
 def unet(nb_features,
@@ -201,7 +201,7 @@ def ae(nb_features,
         in_input_shape = None
         in_model = enc_model
     else:
-        in_input_shape = enc_model.output.shape.as_list()[1:]
+        in_input_shape = enc_model.output.shape[1:]
         in_model = None
     mid_ae_model = single_ae(enc_size,
                              in_input_shape,
@@ -219,7 +219,7 @@ def ae(nb_features,
         in_input_shape = None
         in_model = mid_ae_model
     else:
-        in_input_shape = mid_ae_model.output.shape.as_list()[1:]
+        in_input_shape = mid_ae_model.output.shape[1:]
         in_model = None
     dec_model = conv_dec(nb_features,
                          in_input_shape,
@@ -328,8 +328,8 @@ def conv_enc(nb_features,
 
             # the "add" layer is the original input
             # However, it may not have the right number of features to be added
-            nb_feats_in = lvl_first_tensor.get_shape()[-1]
-            nb_feats_out = convarm_layer.get_shape()[-1]
+            nb_feats_in = lvl_first_tensor.shape[-1]
+            nb_feats_out = convarm_layer.shape[-1]
             add_layer = lvl_first_tensor
             if nb_feats_in > 1 and nb_feats_out > 1 and (nb_feats_in != nb_feats_out):
                 name = '%s_expand_down_merge_%d' % (prefix, level)
@@ -400,7 +400,7 @@ def conv_dec(nb_features,
     else:
         input_tensor = input_model.input
         last_tensor = input_model.output
-        input_shape = last_tensor.shape.as_list()[1:]
+        input_shape = last_tensor.shape[1:]
 
     # vol size info
     ndims = len(input_shape) - 1
@@ -456,8 +456,8 @@ def conv_dec(nb_features,
             # the "add" layer is the original input
             # However, it may not have the right number of features to be added
             add_layer = up_tensor
-            nb_feats_in = add_layer.get_shape()[-1]
-            nb_feats_out = last_tensor.get_shape()[-1]
+            nb_feats_in = add_layer.shape[-1]
+            nb_feats_out = last_tensor.shape[-1]
             if nb_feats_in > 1 and nb_feats_out > 1 and (nb_feats_in != nb_feats_out):
                 name = '%s_expand_up_merge_%d' % (prefix, level)
                 add_layer = convL(nb_lvl_feats, conv_size, **conv_kwargs, name=name)(add_layer)
@@ -587,8 +587,8 @@ def single_ae(enc_size,
     else:
         input_tensor = input_model.input
         last_tensor = input_model.output
-        input_shape = last_tensor.shape.as_list()[1:]
-    input_nb_feats = last_tensor.shape.as_list()[-1]
+        input_shape = last_tensor.shape[1:]
+    input_nb_feats = last_tensor.shape[-1]
 
     # prepare conv type based on input
     ndims = len(input_shape) - 1
@@ -632,7 +632,7 @@ def single_ae(enc_size,
             last_tensor = convL(enc_size[-1], conv_size, name=name, **conv_kwargs)(pre_enc_layer)
 
             name = '%s_ae_mu_enc' % prefix
-            zf = [enc_size[:-1][f] / last_tensor.shape.as_list()[1:-1][f] for f in range(len(enc_size) - 1)]
+            zf = [enc_size[:-1][f] / last_tensor.shape[1:-1][f] for f in range(len(enc_size) - 1)]
             last_tensor = layers.Resize(zoom_factor=zf, name=name)(last_tensor)
 
         elif enc_size[-1] is None:  # convolutional, but won't tell us bottleneck
@@ -686,7 +686,7 @@ def single_ae(enc_size,
 
             elif enc_size[-1] is None:  # convolutional, but won't tell us bottleneck
                 name = '%s_ae_sigma_enc' % prefix
-                last_tensor = convL(pre_enc_layer.shape.as_list()[-1], conv_size, name=name, **conv_kwargs)(
+                last_tensor = convL(pre_enc_layer.shape[-1], conv_size, name=name, **conv_kwargs)(
                     pre_enc_layer)
                 # cannot use lambda, then mu and sigma will be same layer.
                 # last_tensor = KL.Lambda(lambda x: x, name=name)(pre_enc_layer)
@@ -738,7 +738,7 @@ def single_ae(enc_size,
                 all([f is not None for f in input_shape[:-1]]) and \
                 all([f is not None for f in enc_size[:-1]]):
             name = '%s_ae_mu_dec' % prefix
-            zf = [last_tensor.shape.as_list()[1:-1][f] / enc_size[:-1][f] for f in range(len(enc_size) - 1)]
+            zf = [last_tensor.shape[1:-1][f] / enc_size[:-1][f] for f in range(len(enc_size) - 1)]
             last_tensor = layers.Resize(zoom_factor=zf, name=name)(last_tensor)
 
         name = '%s_ae_%s_dec' % (prefix, ae_type)

@@ -18,8 +18,8 @@ License.
 import os
 import numpy as np
 import tensorflow as tf
-import keras.layers as KL
-from keras.models import Model
+from tensorflow.keras import layers as KL
+from tensorflow.keras.models import Model
 
 # project imports
 from SynthSeg import evaluate
@@ -375,7 +375,7 @@ def build_model(path_model,
     # smooth posteriors if specified
     if sigma_smoothing > 0:
         last_tensor = net.output
-        last_tensor._keras_shape = tuple(last_tensor.get_shape().as_list())
+        last_tensor._keras_shape = tuple(last_tensor.shape)
         last_tensor = layers.GaussianBlur(sigma=sigma_smoothing)(last_tensor)
         net = Model(inputs=net.inputs, outputs=last_tensor)
 

@@ -19,7 +19,7 @@ License: GPLv3
 import itertools
 import numpy as np
 import tensorflow as tf
-import keras.backend as K
+from tensorflow.keras import backend as K
 
 
 def interpn(vol, loc, interp_method='linear'):
@@ -59,7 +59,7 @@ def interpn(vol, loc, interp_method='linear'):
     loc = tf.cast(loc, 'float32')
 
     if isinstance(vol.shape, tf.TensorShape):
-        volshape = vol.shape.as_list()
+        volshape = vol.shape
     else:
         volshape = vol.shape
 
@@ -68,7 +68,7 @@ def interpn(vol, loc, interp_method='linear'):
         loc0 = tf.floor(loc)
 
         # clip values
-        max_loc = [d - 1 for d in vol.get_shape().as_list()]
+        max_loc = [d - 1 for d in vol.shape]
         clipped_loc = [tf.clip_by_value(loc[..., d], 0, max_loc[d]) for d in range(nb_dims)]
         loc0lst = [tf.clip_by_value(loc0[..., d], 0, max_loc[d]) for d in range(nb_dims)]
 
@@ -504,7 +504,7 @@ def meshgrid(*args, **kwargs):
         output.append(tf.reshape(tf.stack(x), (s0[:i] + (-1,) + s0[i + 1::])))
     # Create parameters for broadcasting each tensor to the full size
     shapes = [tf.size(x) for x in args]
-    sz = [x.get_shape().as_list()[0] for x in args]
+    sz = [x.shape[0] for x in args]
 
     # output_dtype = tf.convert_to_tensor(args[0]).dtype.base_dtype
     if indexing == "xy" and ndim > 1:

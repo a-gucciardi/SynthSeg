@@ -169,7 +169,7 @@ class ImageGenerator:
                                        output_shape=self.output_shape,
                                        output_div_by_n=self.output_div_by_n,
                                        blur_range=self.blur_range)
-        out_shape = lab_to_im_model.output[0].get_shape().as_list()[1:]
+        out_shape = lab_to_im_model.output[0].shape[1:]
         return lab_to_im_model, out_shape
 
     def _build_image_generator(self):

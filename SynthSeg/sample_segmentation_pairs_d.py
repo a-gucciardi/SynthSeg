@@ -18,8 +18,8 @@ import os
 import copy
 import numpy as np
 import tensorflow as tf
-from keras import models
-import keras.layers as KL
+from tensorflow.keras import models
+from tensorflow.keras import layers as KL
 
 # third-party imports
 from ext.lab2im import layers as layers
@@ -172,7 +172,7 @@ def sample_segmentation_pairs(image_dir,
                                                   bias_shape_factor=bias_scale,
                                                   noise_std=noise_std,
                                                   gamma_std=gamma_std)
-    unet_input_shape = augmentation_model.output[0].get_shape().as_list()[1:]
+    unet_input_shape = augmentation_model.output[0].shape[1:]
 
     # prepare the segmentation model
     unet_model = nrn_models.unet(nb_features=24,

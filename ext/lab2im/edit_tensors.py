@@ -26,8 +26,8 @@ License.
 # python imports
 import numpy as np
 import tensorflow as tf
-import keras.layers as KL
-import keras.backend as K
+from tensorflow.keras import layers as KL
+from tensorflow.keras import backend as K
 from itertools import combinations
 
 # project imports
@@ -48,7 +48,7 @@ def blurring_sigma_for_downsampling(current_res, downsample_res, mult_coef=None,
     :return: standard deviation of the blurring masks given as the same type as downsample_res (list or tensor).
     """
 
-    if not tf.is_tensor(downsample_res):
+    if not (tf.is_tensor(downsample_res) or K.is_keras_tensor(downsample_res)):
 
         # get blurring resolution (min between downsample_res and thickness)
         current_res = np.array(current_res)
@@ -94,20 +94,23 @@ def gaussian_kernel(sigma, max_sigma=None, blur_range=None, separable=True):
     :return:
     """
     # convert sigma into a tensor
-    if not tf.is_tensor(sigma):
+    if not (tf.is_tensor(sigma) or K.is_keras_tensor(sigma)):
         sigma_tens = tf.convert_to_tensor(utils.reformat_to_list(sigma), dtype='float32')
     else:
         assert max_sigma is not None, 'max_sigma must be provided when sigma is given as a tensor'
         sigma_tens = sigma
-    shape = sigma_tens.get_shape().as_list()
+    shape = sigma_tens.shape
 
     # get n_dims and batchsize
-    if shape[0] is not None:
+    # get n_dims and batchsize
+    if len(shape) == 1:
         n_dims = shape[0]
         batchsize = None
-    else:
+    elif len(shape) == 2:
         n_dims = shape[1]
         batchsize = tf.split(tf.shape(sigma_tens), [1, -1])[0]
+    else:
+        raise ValueError('sigma should be 1D (n_dims) or 2D (batch, n_dims)')
 
     # reformat max_sigma
     if max_sigma is not None:  # dynamic blurring
@@ -215,15 +218,21 @@ def unit_kernel(dist_threshold, n_dims, max_dist_threshold=None):
     """
 
     # convert dist_threshold into a tensor
-    if not tf.is_tensor(dist_threshold):
+    if not (tf.is_tensor(dist_threshold) or K.is_keras_tensor(dist_threshold)):
         dist_threshold_tens = tf.convert_to_tensor(utils.reformat_to_list(dist_threshold), dtype='float32')
     else:
         assert max_dist_threshold is not None, 'max_sigma must be provided when dist_threshold is given as a tensor'
         dist_threshold_tens = tf.cast(dist_threshold, 'float32')
-    shape = dist_threshold_tens.get_shape().as_list()
+    shape = dist_threshold_tens.shape
 
     # get batchsize
-    batchsize = None if shape[0] is not None else tf.split(tf.shape(dist_threshold_tens), [1, -1])[0]
+    # get batchsize
+    if len(shape) == 1:
+        batchsize = None
+    elif len(shape) == 2:
+        batchsize = tf.split(tf.shape(dist_threshold_tens), [1, -1])[0]
+    else:
+        raise ValueError('dist_threshold should be 1D (1) or 2D (batch, 1)')
 
     # set max_dist_threshold into an array
     if max_dist_threshold is None:  # dist_threshold is fixed (i.e. dist_threshold will not change at each mini-batch)
@@ -282,7 +291,7 @@ def resample_tensor(tensor,
     n_dims = len(resample_shape)
 
     # downsample image
-    tensor_shape = tensor.get_shape().as_list()[1:-1]
+    tensor_shape = tensor.shape[1:-1]
     downsample_shape = tensor_shape  # will be modified if we actually downsample
 
     if subsample_res is not None:
@@ -295,12 +304,12 @@ def resample_tensor(tensor,
             downsample_shape = [int(tensor_shape[i] * volume_res[i] / subsample_res[i]) for i in range(n_dims)]
 
             # downsample volume
-            tensor._keras_shape = tuple(tensor.get_shape().as_list())
+            tensor._keras_shape = tuple(tensor.shape)
             tensor = nrn_layers.Resize(size=downsample_shape, interp_method='nearest')(tensor)
 
     # resample image at target resolution
     if resample_shape != downsample_shape:  # if we didn't downsample downsample_shape = tensor_shape
-        tensor._keras_shape = tuple(tensor.get_shape().as_list())
+        tensor._keras_shape = tuple(tensor.shape)
         tensor = nrn_layers.Resize(size=resample_shape, interp_method=interp_method)(tensor)
 
     # compute reliability maps if necessary and return results

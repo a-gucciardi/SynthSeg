@@ -18,8 +18,8 @@ License.
 import os
 import numpy as np
 import tensorflow as tf
-from keras import models
-from keras import layers as KL
+from tensorflow.keras import models
+from tensorflow.keras import layers as KL
 
 # project imports
 from SynthSeg import metrics_model as metrics
@@ -164,7 +164,7 @@ def training(list_paths_input_labels,
                                                   prob_erosion_dilation=prob_erosion_dilation,
                                                   min_erosion_dilation=min_erosion_dilation,
                                                   max_erosion_dilation=max_erosion_dilation)
-    unet_input_shape = augmentation_model.output[0].get_shape().as_list()[1:]
+    unet_input_shape = augmentation_model.output[0].shape[1:]
 
     # prepare the segmentation model
     l2l_model = nrn_models.unet(input_model=augmentation_model,

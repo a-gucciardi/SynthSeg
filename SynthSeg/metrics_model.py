@@ -17,8 +17,8 @@ License.
 # python imports
 import numpy as np
 import tensorflow as tf
-import keras.layers as KL
-from keras.models import Model
+from tensorflow.keras import layers as KL
+from tensorflow.keras.models import Model
 
 # third-party imports
 from ext.lab2im import layers
@@ -28,7 +28,7 @@ def metrics_model(input_model, label_list, metrics='dice'):
 
     # get prediction
     last_tensor = input_model.outputs[0]
-    input_shape = last_tensor.get_shape().as_list()[1:]
+    input_shape = last_tensor.shape[1:]
 
     # check shapes
     n_labels = input_shape[-1]
@@ -42,8 +42,8 @@ def metrics_model(input_model, label_list, metrics='dice'):
     labels_gt = KL.Reshape(input_shape)(labels_gt)
 
     # make sure the tensors have the right keras shape
-    last_tensor._keras_shape = tuple(last_tensor.get_shape().as_list())
-    labels_gt._keras_shape = tuple(labels_gt.get_shape().as_list())
+    last_tensor._keras_shape = tuple(last_tensor.shape)
+    labels_gt._keras_shape = tuple(labels_gt.shape)
 
     if metrics == 'dice':
         last_tensor = layers.DiceLoss()([labels_gt, last_tensor])

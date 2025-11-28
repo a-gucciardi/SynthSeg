@@ -20,14 +20,14 @@ License.
 
 # python imports
 import os
-import keras
+from tensorflow import keras
 import numpy as np
 import tensorflow as tf
-from keras import models
-import keras.layers as KL
-import keras.backend as K
-import keras.callbacks as KC
-from keras.optimizers import Adam
+from tensorflow.keras import models
+from tensorflow.keras import layers as KL
+from tensorflow.keras import backend as K
+from tensorflow.keras import callbacks as KC
+from tensorflow.keras.optimizers import Adam
 from inspect import getmembers, isclass
 
 # project imports
@@ -240,7 +240,7 @@ def build_qc_model(input_model,
 
     # get prediction
     last_tensor = input_model.outputs[0]
-    input_shape = last_tensor.get_shape().as_list()[1:]
+    input_shape = last_tensor.shape[1:]
     assert input_shape[-1] == n_labels, 'mismatch between number of predicted labels, and segmentation labels'
 
     # build model
@@ -274,7 +274,7 @@ def build_qc_loss(input_model):
 
     # get loss
     loss = KL.Lambda(lambda x: K.sum(K.mean(K.square(x[0] - x[1]), axis=0)), name='qc_loss')([dice_gt, dice_pred])
-    loss._keras_shape = tuple(loss.get_shape().as_list())
+    loss._keras_shape = tuple(loss.shape)
 
     return models.Model(inputs=input_model.inputs, outputs=loss)
 

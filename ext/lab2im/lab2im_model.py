@@ -16,8 +16,8 @@ License.
 
 # python imports
 import numpy as np
-import keras.layers as KL
-from keras.models import Model
+from tensorflow.keras import layers as KL
+from tensorflow.keras.models import Model
 
 # project imports
 from ext.lab2im import utils
@@ -89,24 +89,24 @@ def lab2im_model(labels_shape,
 
     # cropping
     if crop_shape != labels_shape:
-        labels._keras_shape = tuple(labels.get_shape().as_list())
+        labels._keras_shape = tuple(labels.shape)
         labels = layers.RandomCrop(crop_shape)(labels)
 
     # build synthetic image
-    labels._keras_shape = tuple(labels.get_shape().as_list())
+    labels._keras_shape = tuple(labels.shape)
     image = layers.SampleConditionalGMM(generation_labels)([labels, means_input, stds_input])
 
     # apply bias field
-    image._keras_shape = tuple(image.get_shape().as_list())
+    image._keras_shape = tuple(image.shape)
     image = layers.BiasFieldCorruption(.3, .025, same_bias_for_all_channels=False)(image)
 
     # intensity augmentation
-    image._keras_shape = tuple(image.get_shape().as_list())
+    image._keras_shape = tuple(image.shape)
     image = layers.IntensityAugmentation(clip=300, normalise=True, gamma_std=.2)(image)
 
     # blur image
     sigma = blurring_sigma_for_downsampling(atlas_res, target_res)
-    image._keras_shape = tuple(image.get_shape().as_list())
+    image._keras_shape = tuple(image.shape)
     image = layers.GaussianBlur(sigma=sigma, random_blur_range=blur_range)(image)
 
     # resample to target res
