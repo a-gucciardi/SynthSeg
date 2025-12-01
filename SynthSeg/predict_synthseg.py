@@ -683,6 +683,9 @@ def build_model(path_model_segmentation,
         net = Model(inputs=net.inputs, outputs=outputs)
         net.load_weights(path_model_qc, by_name=True)
 
+    # Explicitly disable JIT compilation to avoid XLA errors
+    # net.compile(jit_compile=False)
+
     return net
 
 

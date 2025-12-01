@@ -2,15 +2,12 @@
 from SynthSeg.predict import predict
 import numpy as np
 
-
-
-
-### ! Not working ! 
+# Running
 
 
 # paths to input/output files
 # dhcp_reg_datadir = '/home/arnaud/projects/RESEARCH-MRI-analysis/code/volumes/mri_register/dhcp'
-path_images = '/home/arnaud/projects/RESEARCH-MRI-analysis/code/volumes/IXI002-Guys-0828-T1.nii.gz'
+path_images = '/home/arnaud/projects/RESEARCH-MRI-analysis/code/volumes/IXI002-Guys-0828-T1.nii.gz' # == source.nii.gz
 # path to the output segmentation
 path_segm = './outputs_predict_modif/predicted_segmentations/'
 # we can also provide paths for optional files containing the probability map for all predicted labels

@@ -918,6 +918,8 @@ def build_training_generator(gen, batchsize):
     """Build generator for training a network."""
     while True:
         inputs = next(gen)
+        if isinstance(inputs, list):
+            inputs = tuple(inputs)
         if batchsize > 1:
             target = np.concatenate([np.zeros((1, 1))] * batchsize, 0)
         else:

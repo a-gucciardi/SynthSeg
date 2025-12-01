@@ -102,7 +102,6 @@ def gaussian_kernel(sigma, max_sigma=None, blur_range=None, separable=True):
     shape = sigma_tens.shape
 
     # get n_dims and batchsize
-    # get n_dims and batchsize
     if len(shape) == 1:
         n_dims = shape[0]
         batchsize = None
@@ -225,7 +224,6 @@ def unit_kernel(dist_threshold, n_dims, max_dist_threshold=None):
         dist_threshold_tens = tf.cast(dist_threshold, 'float32')
     shape = dist_threshold_tens.shape
 
-    # get batchsize
     # get batchsize
     if len(shape) == 1:
         batchsize = None

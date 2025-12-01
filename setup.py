@@ -5,12 +5,13 @@ import setuptools
 
 python_version = sys.version[:3]
 
-if (python_version != '3.6') & (python_version != '3.8') & (python_version != '3.12'):
-    raise Exception('Setup.py only works with python version 3.6, 3.8 or 3.12, not {}'.format(python_version))
+if sys.version_info[:2] not in [(3, 6), (3, 8), (3, 12)]:
+    raise Exception('Setup.py only works with python version 3.6, 3.8 or 3.12, not {}.{}'.format(sys.version_info.major, sys.version_info.minor))
 
 else:
 
-    with open('requirements_python' + python_version + '.txt') as f:
+    python_version_str = '{}.{}'.format(sys.version_info.major, sys.version_info.minor)
+    with open('requirements_python' + python_version_str + '.txt') as f:
         required_packages = [line.strip() for line in f.readlines()]
 
     print(setuptools.find_packages())

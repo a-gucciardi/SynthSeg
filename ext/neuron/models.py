@@ -400,6 +400,8 @@ def conv_dec(nb_features,
     else:
         input_tensor = input_model.input
         last_tensor = input_model.output
+        if isinstance(last_tensor, list):
+            last_tensor = last_tensor[0]
         input_shape = last_tensor.shape[1:]
 
     # vol size info

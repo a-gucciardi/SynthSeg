@@ -419,7 +419,7 @@ class RandomFlip(Layer):
             return tf.cast(inputs[0], types[0])
 
     def _single_swap(self, inputs):
-        return K.switch(inputs[1], tf.gather(self.swap_lut, inputs[0]), inputs[0])
+        return K.switch(inputs[1], tf.cast(tf.gather(self.swap_lut, tf.cast(inputs[0], 'int32')), inputs[0].dtype), inputs[0])
 
     @staticmethod
     def _single_flip(inputs):
